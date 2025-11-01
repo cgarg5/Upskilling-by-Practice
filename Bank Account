@@ -1,0 +1,23 @@
+#Practicing OOB Concepts
+class b_a():
+    def __init__(self,name, bal):
+        self.name=name
+        self.bal=bal
+    
+    def deposit(self):
+        d=int(input('How much money do you want to deposit: '))
+        self.bal=self.bal+d
+        
+    def withdraw(self):
+        w=int(input('How much money do you want to withdraw: '))
+        self.bal=self.bal-w
+        
+    def get_bal(self):
+        print (f'The balance is: {self.bal}')
+        
+b1=b_a('Naman', 5000)
+b1.get_bal()
+b1.deposit()
+b1.get_bal()
+b1.withdraw()
+b1.get_bal()
