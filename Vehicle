@@ -1,0 +1,31 @@
+#Building OOB Concepts
+class Vehicle():
+    def __init__(self,brand,year):
+        self.brand=brand
+        self.year=year
+    def Info(self):
+        print (f'The vehicle is of {self.brand} and of {self.year} vintage')
+        
+class Car(Vehicle):
+    def __init__(self,brand, year, doors,t):
+        Vehicle.__init__(self,brand, year)
+        self.doors=doors
+        self.t=t
+    def Info(self):
+        print (f'The Car is of {self.brand} and of {self.year} vintage. It has {self.doors} and {self.t}.')
+    
+class Bike(Vehicle):
+    def __init__(self, brand, year, doors, t):
+        Vehicle.__init__(self,brand, year)
+        self.doors=doors
+        self.t=t
+    def Info(self):
+        print (f'The Bike is of {self.brand} and of {self.year} vintage. It has {self.doors} and {self.t}')
+        
+        
+v1=Vehicle('Yamaha', 2007)
+v1.Info()
+c1=Car('Hyundai',2012, 4, 'Sedan')
+c1.Info()
+b1=Bike('Apache', 2015, 0, '2 wheeler')
+b1.Info()
