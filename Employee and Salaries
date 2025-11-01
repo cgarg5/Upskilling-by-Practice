@@ -1,0 +1,29 @@
+#Improving basic problem solving with Classes
+class Employee():
+    def __init__(self, name, salary):
+        self.name=name
+        self.salary=salary
+class Company():
+    def __init__(self):
+        self.allE=[]
+    def addE(self,e):
+        self.allE.append(e)
+    def avg_s(self):
+        sum=0
+        for i in self.allE:
+            sum=sum+ i.salary
+        avg=sum/len(self.allE)
+        return avg
+
+#Driver Code
+e1=Employee('Mishra',60000)
+e2=Employee('Gupta',78000)
+e3=Employee('Behra',40000)
+e4=Employee('Pankaj',70000)
+C1=Company()
+C1.addE(e1)
+C1.addE(e2)
+C1.addE(e3)
+C1.addE(e4)
+C1.avg_s()
+
