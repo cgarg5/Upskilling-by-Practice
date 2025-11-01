@@ -1,0 +1,13 @@
+#Recursion Refresher with Objects
+class MathOps():
+    def __init__(self):
+        pass
+    
+    def factorial(self,n1):
+        if n1==0 or n1==1:
+            return 1        #Understand Important for recurssion
+        else:
+            return n1*self.factorial(n1-1) # directly use return and feel n-1 as i/p
+    
+m1=MathOps()
+m1.factorial(7)
