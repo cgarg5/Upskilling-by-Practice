@@ -1,0 +1,19 @@
+#Practicing employement of Object Oriented Programming
+class Counter():
+    def __init__(self, count):
+        self.count=count
+        
+    def increment(self):
+        self.count=self.count+1
+        
+    def reset(self):
+        self.count=0
+        
+    def get_value(self):
+        print (f'{self.count}')
+
+c1=Counter(5)
+c1.increment()
+c1.get_value()
+c1.reset()
+c1.get_value()
