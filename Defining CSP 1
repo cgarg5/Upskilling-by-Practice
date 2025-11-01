@@ -1,0 +1,48 @@
+#Towards CSP
+class Variable():
+    def __init__ (self,name, domain):
+        self.name=name
+        self.domain=domain
+        
+class Constraint():
+    def __init__(self,v1,a1,v2,a2):
+        self.v1=v1
+        self.v2=v2
+        self.a1=a1
+        self.a2=a2
+    def check_c1(self):
+        return self.a1 in self.v1.domain
+    def check_c2(self):
+        return self.a1 in self.v1.domain and self.a2 in self.v2.domain
+    def check_c3(self):
+        return self.a1!=self.a2
+    
+class CSP():
+    def __init__(self):
+        self.all_var=[]
+        self.all_constraint=[]
+    def store_var(self,v):
+        self.all_var.append(v)
+    
+    def store_constraint(self,c):
+        self.all_constraint.append(c)
+    
+    def is_consistent(self):
+        for i in self.all_constraint:
+            if i.check_c1()==i.check_c2()==i.check_c3()==True:
+                return True
+            else:
+                return False
+#Driver code
+Var1=Variable('WA',['red','green','blue'])
+Var2=Variable('NT',['red','green','blue'])
+Var3=Variable('Q',['red','green','blue'])
+Con1=Constraint(Var1,'red',Var2,'yellow')
+Con1.check_c1()
+Con1.check_c2()
+Con1.check_c3()
+CSP1=CSP()
+CSP1.store_var(Var1)
+CSP1.store_var(Var2)
+CSP1.store_constraint(Con1)
+CSP1.is_consistent()
