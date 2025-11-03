@@ -1,0 +1,26 @@
+#Learning basic operations
+A=[4,7,9,13,8,17,12,15]
+# A Heap. Now let us suppose A[3] violates max-heap property
+A2=[4,7,9,11,8,6,12,15]
+# Use max-HEapify to restore HMax-eap property
+
+i=2
+def MaxHeapify(A2,i):
+        l=(2*i)+1        # Error: 2i= 2*i
+        r=(2*i)+2
+        n=len(A2)
+        largest=i
+        if l<n and A2[l]>A2[i]:
+            largest=l
+        if r<n and A2[r]>A2[i]:
+            largest=r
+        if largest!=i:  # swap i and largest
+            x=A2[i]
+            A2[i]=A2[largest]
+            A2[largest]=x
+            MaxHeapify(A2,largest) #Error: I used MaxHepify(A2,i). It must be with largest& Indentation, function to be called only when largest!=i
+        return A2
+
+MaxHeapify(A2, i)    
+print (A2)
+        
