@@ -1,0 +1,12 @@
+def change_maker(x):
+    de_nom=[7,6,3,1]
+    r=[0]+[x]*x #array to store minimum no of coins required for every index value. 0 for 0, 1 for 1 and so on
+    s=[0]*(x+1)
+    for i in range(x+1):
+        for j in de_nom:
+            if j<=i and r[i] > (r[i-j]+1):
+                r[i]=r[i-j]+1
+                s[i]=j
+    return r,s
+
+change_maker(9)
