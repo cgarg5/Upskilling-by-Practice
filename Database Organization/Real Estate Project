@@ -1,0 +1,291 @@
+-- Real Estatee Project
+
+
+
+CREATE TABLE "user" (
+    ID SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    is_agent BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE agent (
+    user_id INTEGER PRIMARY KEY,
+    job_title VARCHAR(100),
+    contact_info VARCHAR(100),
+    agency VARCHAR(100),
+    brokerage VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES "user"(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE p_renter (
+    user_id INTEGER PRIMARY KEY,
+    desired_move_in_dt DATE,
+    preferred_loc VARCHAR(100),
+    budget DECIMAL(12, 2),
+    start_date DATE,
+    end_date DATE,
+    FOREIGN KEY (user_id) REFERENCES "user"(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE property (
+    prop_id SERIAL PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zip_code VARCHAR(10) NOT NULL,
+    price DECIMAL(12, 2) NOT NULL,
+    parking_available BOOLEAN DEFAULT FALSE,
+    pet_friendly BOOLEAN DEFAULT FALSE,
+    is_available BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE area_amenities (
+    zip_code VARCHAR(10) PRIMARY KEY,
+    crime_rate DECIMAL(5, 2),
+    nearby_schools INTEGER,
+    banks INTEGER,
+    public_transport BOOLEAN,
+    hospital BOOLEAN
+);
+
+CREATE TABLE booking (
+    booking_id SERIAL PRIMARY KEY,
+    booking_date DATE NOT NULL,
+    total_amount DECIMAL(12, 2) NOT NULL,
+    tax_amount_applied DECIMAL(12, 2),
+    booking_status VARCHAR(50) DEFAULT 'PENDING',
+    is_canceled BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE reward_program (
+    program_id SERIAL PRIMARY KEY,
+    program_name VARCHAR(100) NOT NULL,
+    tier_rules TEXT
+);
+
+CREATE TABLE residential_unit (
+    prop_id INTEGER PRIMARY KEY,
+    car_park INTEGER,
+    floor_type VARCHAR(50),
+    gas_stove BOOLEAN,
+    refrigerator BOOLEAN,
+    FOREIGN KEY (prop_id) REFERENCES property(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE commercial_unit (
+    prop_id INTEGER PRIMARY KEY,
+    sq_ft DECIMAL(10, 2),
+    business_type VARCHAR(100),
+    FOREIGN KEY (prop_id) REFERENCES property(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vacation_unit (
+    prop_id INTEGER PRIMARY KEY,
+    sq_ft DECIMAL(10, 2),
+    type_of_unit VARCHAR(50),
+    amenities TEXT,
+    max_occupancy INTEGER,
+    for_season VARCHAR(50),
+    FOREIGN KEY (prop_id) REFERENCES property(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE land_unit (
+    prop_id INTEGER PRIMARY KEY,
+    acreage DECIMAL(10, 2),
+    utilities BOOLEAN,
+    FOREIGN KEY (prop_id) REFERENCES property(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE apartment (
+    prop_id INTEGER PRIMARY KEY,
+    rooms INTEGER,
+    floor INTEGER,
+    sq_ft DECIMAL(10, 2),
+    building_type VARCHAR(50),
+    lifts INTEGER,
+    FOREIGN KEY (prop_id) REFERENCES residential_unit(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE house (
+    prop_id INTEGER PRIMARY KEY,
+    rooms INTEGER,
+    sq_ft DECIMAL(10, 2),
+    private_lawn BOOLEAN,
+    FOREIGN KEY (prop_id) REFERENCES residential_unit(prop_id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_address (
+    user_id INTEGER NOT NULL,
+    address_id INTEGER NOT NULL,
+    line_1 VARCHAR(100) NOT NULL,
+    line_2 VARCHAR(100),
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zip_code VARCHAR(10) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    PRIMARY KEY (user_id, address_id),
+    FOREIGN KEY (user_id) REFERENCES "user"(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE payment_method (
+    renter_user_id INTEGER NOT NULL,
+    card_id INTEGER NOT NULL,
+    card_type VARCHAR(50),
+    name_on_card VARCHAR(100),
+    card_no VARCHAR(20) UNIQUE,
+    CVV VARCHAR(4),
+    address_user_id INTEGER,
+    address_id INTEGER,
+    PRIMARY KEY (renter_user_id, card_id),
+    FOREIGN KEY (renter_user_id) REFERENCES p_renter(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (address_user_id, address_id) REFERENCES user_address(user_id, address_id) ON DELETE SET NULL
+);
+
+ALTER TABLE property ADD COLUMN agent_user_id INTEGER;
+ALTER TABLE property ADD CONSTRAINT fk_property_manages_agent 
+    FOREIGN KEY (agent_user_id) REFERENCES agent(user_id) ON DELETE SET NULL;
+
+ALTER TABLE property ADD CONSTRAINT fk_property_located_nearby_amenities 
+    FOREIGN KEY (zip_code) REFERENCES area_amenities(zip_code) ON DELETE SET NULL;
+
+ALTER TABLE booking ADD COLUMN renter_user_id INTEGER;
+ALTER TABLE booking ADD COLUMN property_id INTEGER;
+
+ALTER TABLE booking ADD CONSTRAINT fk_booking_makes_booking_renter 
+    FOREIGN KEY (renter_user_id) REFERENCES p_renter(user_id) ON DELETE CASCADE;
+
+ALTER TABLE booking ADD CONSTRAINT fk_booking_booked_property 
+    FOREIGN KEY (property_id) REFERENCES property(prop_id) ON DELETE CASCADE;
+
+CREATE TABLE renter_enrollment (
+    renter_user_id INTEGER NOT NULL,
+    program_id INTEGER NOT NULL,
+    enrolled_date DATE NOT NULL,
+    collected_reward_points INTEGER DEFAULT 0,
+    PRIMARY KEY (renter_user_id, program_id),
+    FOREIGN KEY (renter_user_id) REFERENCES p_renter(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (program_id) REFERENCES reward_program(program_id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_email (
+    user_id INTEGER NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    PRIMARY KEY (user_id, email),
+    FOREIGN KEY (user_id) REFERENCES "user"(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE agent_phone (
+    agent_user_id INTEGER NOT NULL,
+    phone_no VARCHAR(20) NOT NULL,
+    PRIMARY KEY (agent_user_id, phone_no),
+    FOREIGN KEY (agent_user_id) REFERENCES agent(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE renter_phone (
+    renter_user_id INTEGER NOT NULL,
+    phone_no VARCHAR(20) NOT NULL,
+    PRIMARY KEY (renter_user_id, phone_no),
+    FOREIGN KEY (renter_user_id) REFERENCES p_renter(user_id) ON DELETE CASCADE
+);
+
+INSERT INTO "user" (name, password_hash, is_agent) VALUES
+('John Smith', 'hash_john_123', TRUE),
+('Alice Johnson', 'hash_alice_456', FALSE),
+('Bob Wilson', 'hash_bob_789', TRUE),
+('Carol Davis', 'hash_carol_012', FALSE),
+('David Miller', 'hash_david_345', FALSE);
+
+INSERT INTO agent (user_id, job_title, contact_info, agency, brokerage) VALUES
+(1, 'Senior Agent', 'john.smith@realestate.com', 'Premier Realty', 'National Brokers Inc'),
+(3, 'Agent', 'bob.wilson@realestate.com', 'Elite Properties', 'Regional Brokers LLC');
+
+INSERT INTO p_renter (user_id, desired_move_in_dt, preferred_loc, budget, start_date, end_date) VALUES
+(2, '2025-12-01', 'Downtown', 2500.00, '2025-12-01', '2026-12-01'),
+(4, '2026-01-15', 'Suburbs', 1800.00, '2026-01-15', '2026-07-15'),
+(5, '2025-11-20', 'Midtown', 2200.00, '2025-11-20', '2026-11-20');
+
+INSERT INTO user_email (user_id, email) VALUES
+(1, 'john.smith@realestate.com'),
+(1, 'john.s@mail.com'),
+(2, 'alice.j@mail.com'),
+(3, 'bob.wilson@realestate.com'),
+(4, 'carol.d@mail.com'),
+(5, 'david.m@mail.com');
+
+INSERT INTO agent_phone (agent_user_id, phone_no) VALUES
+(1, '555-0101'),
+(1, '555-0102'),
+(3, '555-0103');
+
+INSERT INTO renter_phone (renter_user_id, phone_no) VALUES
+(2, '555-1001'),
+(2, '555-1002'),
+(4, '555-1003'),
+(5, '555-1004');
+
+INSERT INTO user_address (user_id, address_id, line_1, line_2, city, state, zip_code, country) VALUES
+(1, 1, '123 Main St', 'Suite 100', 'Chicago', 'IL', '60601', 'USA'),
+(2, 1, '456 Oak Ave', NULL, 'Chicago', 'IL', '60602', 'USA'),
+(2, 2, '789 Pine Rd', 'Apt 2B', 'Springfield', 'IL', '62701', 'USA'),
+(3, 1, '321 Elm St', NULL, 'Chicago', 'IL', '60603', 'USA'),
+(4, 1, '654 Maple Dr', NULL, 'Evanston', 'IL', '60201', 'USA'),
+(5, 1, '987 Cedar Ln', 'House 5', 'Naperville', 'IL', '60540', 'USA');
+
+INSERT INTO payment_method (renter_user_id, card_id, card_type, name_on_card, card_no, CVV, address_user_id, address_id) VALUES
+(2, 1, 'Visa', 'Alice Johnson', '4532123456789012', '123', 2, 1),
+(2, 2, 'Mastercard', 'Alice Johnson', '5425123456789012', '456', 2, 2),
+(4, 1, 'Visa', 'Carol Davis', '4532987654321098', '789', 4, 1),
+(5, 1, 'Amex', 'David Miller', '378282246310005', '1234', 5, 1);
+
+INSERT INTO area_amenities (zip_code, crime_rate, nearby_schools, banks, public_transport, hospital) VALUES
+('60601', 4.5, 5, 8, TRUE, TRUE),
+('60602', 3.8, 7, 6, TRUE, TRUE),
+('60603', 2.9, 10, 10, TRUE, TRUE),
+('60201', 2.1, 12, 5, TRUE, FALSE),
+('60540', 1.5, 15, 3, FALSE, TRUE);
+
+INSERT INTO property (title, description, city, state, zip_code, price, parking_available, pet_friendly, is_available, agent_user_id) VALUES
+('Downtown Luxury Apartment', 'Modern apartment with city views', 'Chicago', 'IL', '60601', 250000.00, TRUE, TRUE, TRUE, 1),
+('Cozy Studio', 'Studio apartment for singles', 'Chicago', 'IL', '60602', 150000.00, FALSE, FALSE, TRUE, 1),
+('Family Home', 'Three bedroom house', 'Evanston', 'IL', '60201', 350000.00, TRUE, TRUE, FALSE, 3),
+('Office Space', 'Commercial office in downtown', 'Chicago', 'IL', '60603', 500000.00, TRUE, FALSE, TRUE, 1),
+('Vacation Unit', 'Beachfront vacation rental', 'Chicago', 'IL', '60602', 200000.00, TRUE, TRUE, TRUE, 3),
+('Land Lot', 'Residential land', 'Naperville', 'IL', '60540', 80000.00, FALSE, FALSE, TRUE, 1);
+
+INSERT INTO residential_unit (prop_id, car_park, floor_type, gas_stove, refrigerator) VALUES
+(1, 2, 'Hardwood', TRUE, TRUE),
+(2, 0, 'Tile', FALSE, TRUE),
+(3, 2, 'Hardwood', TRUE, TRUE);
+
+INSERT INTO commercial_unit (prop_id, sq_ft, business_type) VALUES
+(4, 5000.00, 'Office');
+
+INSERT INTO vacation_unit (prop_id, sq_ft, type_of_unit, amenities, max_occupancy, for_season) VALUES
+(5, 1200.00, 'Beachfront', 'Pool, Hot Tub, Ocean View', 6, 'Summer');
+
+INSERT INTO land_unit (prop_id, acreage, utilities) VALUES
+(6, 0.5, TRUE);
+
+INSERT INTO apartment (prop_id, rooms, floor, sq_ft, building_type, lifts) VALUES
+(1, 2, 15, 1500.00, 'High-Rise', 3),
+(2, 1, 3, 650.00, 'Mid-Rise', 1);
+
+INSERT INTO house (prop_id, rooms, sq_ft, private_lawn) VALUES
+(3, 3, 2500.00, TRUE);
+
+INSERT INTO reward_program (program_id, program_name, tier_rules) VALUES
+(1, 'Gold Member Rewards', 'Earn 1 point per $1 spent'),
+(2, 'Platinum Plus', 'Earn 1.5 points per $1 spent');
+
+INSERT INTO renter_enrollment (renter_user_id, program_id, enrolled_date, collected_reward_points) VALUES
+(2, 1, '2025-06-01', 150),
+(4, 2, '2025-08-15', 200),
+(5, 1, '2025-09-10', 75);
+
+INSERT INTO booking (booking_date, total_amount, tax_amount_applied, booking_status, is_canceled, renter_user_id, property_id) VALUES
+('2025-11-05', 2500.00, 225.00, 'CONFIRMED', FALSE, 2, 1),
+('2025-11-06', 1800.00, 162.00, 'CONFIRMED', FALSE, 4, 2),
+('2025-11-07', 2200.00, 198.00, 'PENDING', FALSE, 5, 3),
+('2025-11-04', 5000.00, 450.00, 'COMPLETED', FALSE, 2, 4);
